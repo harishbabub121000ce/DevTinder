@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -41,6 +43,19 @@ const userSchema = new mongoose.Schema({
         type: [String],
     }
 }, { timestamps: true });
+
+// Add methods to the schema before creating the model
+userSchema.methods.getJWTToken = function() {
+    return jwt.sign({id: this._id}, "Hacker@123", {expiresIn: "1d"});
+}
+
+/*
+    @param {string} password - The password entered by the user
+    this.password is the hashed password stored in the database
+*/
+userSchema.methods.validatePassword = async function(password) {
+    return await bcrypt.compare(password, this.password);
+}
 
 const User = mongoose.model("User", userSchema);
 
