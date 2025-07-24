@@ -45,7 +45,7 @@ authRouter.post("/signup", async (req, res) => {
 });
 
 // login api
-authRouter.get("/login", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -58,7 +58,7 @@ authRouter.get("/login", async (req, res) => {
         res.cookie("token", token, { maxAge: 24 * 60 * 60 * 1000 });
         
         // Get user with only the fields we want to return
-        const userResponse = await User.findById(user._id).select('firstName lastName email photoUrl about skills');
+        const userResponse = await User.findById(user._id).select('firstName lastName email age gender photoUrl about skills');
 
         res.status(200).json({
           success: true,

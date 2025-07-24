@@ -4,16 +4,23 @@ import userAuth from "../middleware/auth.js";
 import { validateUserUpdate } from "../validations/index.js";
 import bcrypt from "bcrypt";
 
-
-
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, async (req,res)=> {
     try {
         const { user } = req;
-        // Remove password from response for security
-        const userResponse = user.toObject();
-        delete userResponse.password;
+        // Select only the fields we need instead of deleting password
+        const userResponse = {
+            _id: user._id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            age: user.age,
+            gender: user.gender,
+            photoUrl: user.photoUrl,
+            about: user.about,
+            skills: user.skills
+        };
         
         res.status(200).json({
             success: true,
@@ -24,7 +31,7 @@ profileRouter.get("/profile/view", userAuth, async (req,res)=> {
     }
 });
 
-profileRouter.get("/profile/edit", userAuth, async (req, res) => {
+profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     // only update if it has the allowed fields
     const allowedFields = [
@@ -37,6 +44,7 @@ profileRouter.get("/profile/edit", userAuth, async (req, res) => {
       "about",
       "skills",
     ];
+
 
     // Validate update data
     const validation = validateUserUpdate(req.body);
@@ -64,9 +72,23 @@ profileRouter.get("/profile/edit", userAuth, async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(user._id, req.body, {
       new: true,
     });
+    
+    // Select only the fields we need for response
+    const userResponse = {
+        _id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        age: updatedUser.age,
+        gender: updatedUser.gender,
+        photoUrl: updatedUser.photoUrl,
+        about: updatedUser.about,
+        skills: updatedUser.skills
+    };
+    
     res.status(200).json({
       success: true,
-      user: updatedUser,
+      user: userResponse,
     });
   } catch (error) {
     res.status(500).json({
@@ -88,9 +110,18 @@ profileRouter.delete("/user", async (req, res) => {
         });
       }
       
-      // Remove password from response for security
-      const userResponse = user.toObject();
-      delete userResponse.password;
+      // Select only the fields we need instead of deleting password
+      const userResponse = {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          age: user.age,
+          gender: user.gender,
+          photoUrl: user.photoUrl,
+          about: user.about,
+          skills: user.skills
+      };
       
       res.status(200).json({
         success: true,

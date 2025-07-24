@@ -56,10 +56,26 @@ export const validatePhotoUrl = (photoUrl) => {
 };
 
 export const validateAge = (age) => {
+  console.log('age received:', age, 'type:', typeof age);
   if (!age) {
     return { isValid: true }; // Age is optional
   }
-  if(!validator.isInt(age, { min: 18, max: 50 })) {
+  
+  // Convert to number if it's a string
+  const ageNum = typeof age === 'string' ? parseInt(age, 10) : Number(age);
+  console.log('ageNum converted:', ageNum, 'type:', typeof ageNum);
+  
+  // Check if conversion was successful
+  if (isNaN(ageNum)) {
+    return { isValid: false, message: "Age must be a valid number" };
+  }
+  
+  // Convert back to string for validator.isInt() which expects a string
+  const ageString = ageNum.toString();
+  console.log('ageString for validator:', ageString, 'type:', typeof ageString);
+  console.log('isInt check:', validator.isInt(ageString, { min: 18, max: 50 }));
+  
+  if(!validator.isInt(ageString, { min: 18, max: 50 })) {
     return { isValid: false, message: "Age must be between 18 and 50" };
   }
   return { isValid: true };
@@ -105,7 +121,6 @@ export const validateSignup = (data) => {
 
 export const validateUserUpdate = (data) => {
   // Optional fields for update - only validate if provided
-  
   if (data.email) {
     const emailValidation = validateEmail(data.email);
     if (!emailValidation.isValid) {
@@ -141,6 +156,7 @@ export const validateUserUpdate = (data) => {
     }
   }
 
+
   if (data.photoUrl) {
     const photoUrlValidation = validatePhotoUrl(data.photoUrl);
     if (!photoUrlValidation.isValid) {
@@ -154,7 +170,6 @@ export const validateUserUpdate = (data) => {
       return ageValidation;
     }
   }
-
   if (data.gender) {
     const genderValidation = validateGender(data.gender);
     if (!genderValidation.isValid) {
